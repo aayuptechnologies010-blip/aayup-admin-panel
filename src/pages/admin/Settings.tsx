@@ -9,16 +9,17 @@ import Footer from "@/components/Footer";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Lock, Eye, EyeOff, User, Mail, Shield, Key, UserPlus, Trash2, Search, AlertCircle } from "lucide-react";
+import { Lock, Eye, EyeOff, User, Mail, Shield, Key, UserPlus, Trash2, Search, AlertCircle, Megaphone, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import AdminLayout from "@/components/admin/AdminLayout";
+import { getDynamicData, saveDynamicData, DYNAMIC_KEYS } from "@/lib/dynamicDataService";
 
 const Settings = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"profile" | "security" | "admins">("profile");
+  const [activeTab, setActiveTab] = useState<"profile" | "security" | "admins" | "announcement">("profile");
 
   // Profile form
   const [fullName, setFullName] = useState("");
@@ -41,12 +42,62 @@ const Settings = () => {
   const [isCreatingAdmin, setIsCreatingAdmin] = useState(false);
   const [isDeletingAdmin, setIsDeletingAdmin] = useState<string | null>(null);
 
+  // Announcement bar state (Header Bar Dynamic Control)
+  const [announcementData, setAnnouncementData] = useState({
+    badge: "Announcement",
+    text: "Currently we are not hiring! Follow us for future job updates & opportunities:",
+    linkText: "Follow on LinkedIn",
+    linkUrl: "https://www.linkedin.com/in/aayup-technologies-a030a5372/",
+    active: true,
+  });
+  const [isSavingAnnouncement, setIsSavingAnnouncement] = useState(false);
+
   useEffect(() => {
     checkUser();
     if (activeTab === "admins") {
       fetchAdmins();
     }
+    if (activeTab === "announcement") {
+      fetchAnnouncement();
+    }
   }, [activeTab]);
+
+  const fetchAnnouncement = async () => {
+    try {
+      const data = await getDynamicData(DYNAMIC_KEYS.ANNOUNCEMENT, {
+        badge: "Announcement",
+        text: "Currently we are not hiring! Follow us for future job updates & opportunities:",
+        linkText: "Follow on LinkedIn",
+        linkUrl: "https://www.linkedin.com/in/aayup-technologies-a030a5372/",
+        active: true,
+      });
+      if (data) {
+        setAnnouncementData(data as any);
+      }
+    } catch (e) {
+      console.error("Failed to fetch announcement:", e);
+    }
+  };
+
+  const handleSaveAnnouncement = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSavingAnnouncement(true);
+    try {
+      await saveDynamicData(DYNAMIC_KEYS.ANNOUNCEMENT, announcementData);
+      toast({
+        title: "Announcement Updated",
+        description: "Website header announcement is now updated live across the website!",
+      });
+    } catch (err: any) {
+      toast({
+        title: "Update Failed",
+        description: err?.message || "Failed to update announcement",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSavingAnnouncement(false);
+    }
+  };
 
   const checkUser = async () => {
     try {
@@ -408,6 +459,17 @@ const Settings = () => {
                 <Shield className="w-4 h-4" />
                 Admins
               </button>
+              <button
+                onClick={() => setActiveTab("announcement")}
+                className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-semibold transition-all ${
+                  activeTab === "announcement"
+                    ? "bg-gradient-to-r from-primary to-secondary text-white shadow-lg"
+                    : "text-foreground/70 hover:text-foreground"
+                }`}
+              >
+                <Megaphone className="w-4 h-4" />
+                Header Announcement
+              </button>
             </div>
 
             {/* Profile Settings */}
@@ -648,6 +710,104 @@ const Settings = () => {
                   </div>
                 </Card>
               </div>
+            )}
+            {/* Header Announcement Bar Settings */}
+            {activeTab === "announcement" && (
+              <Card className="glass-card p-8 border border-slate-200/80 shadow-md">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="text-2xl font-bold flex items-center gap-2 text-[#0D4F85]">
+                      <Megaphone className="w-6 h-6 text-[#1769AA]" />
+                      Live Website Header Announcement
+                    </h2>
+                    <p className="text-sm text-slate-500 mt-1">
+                      Manage the top alert notification strip displayed at the top of the main website.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-bold text-slate-700">Display Active:</label>
+                    <input
+                      type="checkbox"
+                      checked={announcementData.active}
+                      onChange={(e) => setAnnouncementData({ ...announcementData, active: e.target.checked })}
+                      className="w-5 h-5 accent-[#1769AA] cursor-pointer rounded"
+                    />
+                  </div>
+                </div>
+
+                <form onSubmit={handleSaveAnnouncement} className="space-y-6">
+                  <div className="grid md:grid-cols-3 gap-6">
+                    <div>
+                      <label className="block text-sm font-semibold mb-2">Badge Text</label>
+                      <Input
+                        type="text"
+                        value={announcementData.badge}
+                        onChange={(e) => setAnnouncementData({ ...announcementData, badge: e.target.value })}
+                        placeholder="📢 Announcement"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold mb-2">Action Button Label</label>
+                      <Input
+                        type="text"
+                        value={announcementData.linkText}
+                        onChange={(e) => setAnnouncementData({ ...announcementData, linkText: e.target.value })}
+                        placeholder="Follow on LinkedIn"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold mb-2">Action Button URL</label>
+                      <Input
+                        type="url"
+                        value={announcementData.linkUrl}
+                        onChange={(e) => setAnnouncementData({ ...announcementData, linkUrl: e.target.value })}
+                        placeholder="https://linkedin.com/..."
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold mb-2">Announcement Message</label>
+                    <textarea
+                      rows={3}
+                      value={announcementData.text}
+                      onChange={(e) => setAnnouncementData({ ...announcementData, text: e.target.value })}
+                      placeholder="Enter announcement text..."
+                      required
+                      className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 focus:outline-none focus:ring-2 focus:ring-[#1769AA]"
+                    />
+                  </div>
+
+                  {/* Live Preview Box */}
+                  <div className="p-4 rounded-xl bg-[#0B1E38] text-white border border-white/10 space-y-2">
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-cyan-300">
+                      Live Preview in Website Header
+                    </span>
+                    <div className="flex items-center gap-2 text-xs">
+                      <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-[#1769AA]/40 text-cyan-300 border border-[#1769AA]/40 text-[10px] font-semibold uppercase">
+                        {announcementData.badge || "Announcement"}
+                      </span>
+                      <span className="text-slate-200 truncate">{announcementData.text}</span>
+                      {announcementData.linkText && (
+                        <span className="text-cyan-300 font-semibold underline underline-offset-2 ml-1 cursor-pointer">
+                          {announcementData.linkText} →
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end pt-2">
+                    <Button
+                      type="submit"
+                      disabled={isSavingAnnouncement}
+                      className="bg-[#1769AA] hover:bg-[#0D4F85] text-white px-6 py-2.5 font-bold shadow-md"
+                    >
+                      {isSavingAnnouncement ? "Saving Changes..." : "Publish to Live Website"}
+                    </Button>
+                  </div>
+                </form>
+              </Card>
             )}
           </motion.div>
       </div>

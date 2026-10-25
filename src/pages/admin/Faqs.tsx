@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
+import { getDynamicData, saveDynamicData } from "@/lib/dynamicDataService";
 import {
   HelpCircle,
   Plus,
@@ -136,30 +137,20 @@ export default function AdminFaqs() {
   );
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const stored = localStorage.getItem(LOCAL_STORAGE_FAQS);
-        if (stored) {
-          setFaqs(JSON.parse(stored));
-        } else {
-          localStorage.setItem(LOCAL_STORAGE_FAQS, JSON.stringify(SEED_FAQS));
-        }
-      } catch (e) {
-        console.error("Failed to load FAQs", e);
+    let isMounted = true;
+    getDynamicData<FAQItem[]>(LOCAL_STORAGE_FAQS, SEED_FAQS).then((data) => {
+      if (isMounted && data) {
+        setFaqs(data);
       }
-    }
+    });
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  const persistFaqs = (updated: FAQItem[]) => {
+  const persistFaqs = async (updated: FAQItem[]) => {
     setFaqs(updated);
-    if (typeof window !== "undefined") {
-      try {
-        localStorage.setItem(LOCAL_STORAGE_FAQS, JSON.stringify(updated));
-        window.dispatchEvent(new Event("faqs_updated"));
-      } catch (e) {
-        console.error(e);
-      }
-    }
+    await saveDynamicData(LOCAL_STORAGE_FAQS, updated);
   };
 
   const handleOpenAddModal = () => {

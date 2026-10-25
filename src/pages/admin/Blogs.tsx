@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { supabase } from "@/integrations/supabase/client";
+import { getDynamicData, saveDynamicData } from "@/lib/dynamicDataService";
 import {
   BookOpen,
   Plus,
@@ -197,34 +198,10 @@ export default function AdminBlogs() {
   const fetchBlogs = async () => {
     setLoading(true);
     try {
-      // 1. Try fetching from Supabase
-      const { data, error } = await supabase
-        .from("blog_posts")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (data && data.length > 0 && !error) {
-        setBlogs(data as BlogPost[]);
-        if (typeof window !== "undefined") {
-          localStorage.setItem(LOCAL_STORAGE_BLOGS, JSON.stringify(data));
-        }
-      } else {
-        // Fallback to local storage or seed
-        if (typeof window !== "undefined") {
-          const stored = localStorage.getItem(LOCAL_STORAGE_BLOGS);
-          if (stored) {
-            setBlogs(JSON.parse(stored));
-          } else {
-            localStorage.setItem(LOCAL_STORAGE_BLOGS, JSON.stringify(SEED_BLOG_POSTS));
-            setBlogs(SEED_BLOG_POSTS);
-          }
-        }
-      }
+      const data = await getDynamicData<BlogPost[]>(LOCAL_STORAGE_BLOGS, SEED_BLOG_POSTS);
+      setBlogs(data);
     } catch {
-      if (typeof window !== "undefined") {
-        const stored = localStorage.getItem(LOCAL_STORAGE_BLOGS);
-        if (stored) setBlogs(JSON.parse(stored));
-      }
+      setBlogs(SEED_BLOG_POSTS);
     } finally {
       setLoading(false);
     }
@@ -232,14 +209,7 @@ export default function AdminBlogs() {
 
   const persistUpdatedBlogs = async (updated: BlogPost[]) => {
     setBlogs(updated);
-    if (typeof window !== "undefined") {
-      try {
-        localStorage.setItem(LOCAL_STORAGE_BLOGS, JSON.stringify(updated));
-        window.dispatchEvent(new Event("blog_posts_updated"));
-      } catch (e) {
-        console.error(e);
-      }
-    }
+    await saveDynamicData(LOCAL_STORAGE_BLOGS, updated);
   };
 
   const handleOpenAddModal = () => {

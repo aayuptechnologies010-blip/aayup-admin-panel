@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
+import { getDynamicData, saveDynamicData } from "@/lib/dynamicDataService";
 import {
   Users,
   Plus,
@@ -154,30 +155,20 @@ export default function AdminTeam() {
   );
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const stored = localStorage.getItem(LOCAL_STORAGE_TEAM);
-        if (stored) {
-          setMembers(JSON.parse(stored));
-        } else {
-          localStorage.setItem(LOCAL_STORAGE_TEAM, JSON.stringify(SEED_TEAM_MEMBERS));
-        }
-      } catch (e) {
-        console.error("Failed to load team members", e);
+    let isMounted = true;
+    getDynamicData<TeamMember[]>(LOCAL_STORAGE_TEAM, SEED_TEAM_MEMBERS).then((data) => {
+      if (isMounted && data) {
+        setMembers(data);
       }
-    }
+    });
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  const persistMembers = (updated: TeamMember[]) => {
+  const persistMembers = async (updated: TeamMember[]) => {
     setMembers(updated);
-    if (typeof window !== "undefined") {
-      try {
-        localStorage.setItem(LOCAL_STORAGE_TEAM, JSON.stringify(updated));
-        window.dispatchEvent(new Event("team_members_updated"));
-      } catch (e) {
-        console.error(e);
-      }
-    }
+    await saveDynamicData(LOCAL_STORAGE_TEAM, updated);
   };
 
   const handleOpenAddModal = () => {

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
+import { getDynamicData, saveDynamicData } from "@/lib/dynamicDataService";
 import {
   FolderKanban,
   Plus,
@@ -286,32 +287,22 @@ export default function AdminProjects() {
     ])
   );
 
-  // Load from localStorage on client mount
+  // Load from Supabase Cloud Storage on client mount
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        if (stored) {
-          setProjects(JSON.parse(stored));
-        } else {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_PROJECTS));
-        }
-      } catch (e) {
-        console.error("Failed to load local projects", e);
+    let isMounted = true;
+    getDynamicData<ProjectItem[]>(STORAGE_KEY, INITIAL_PROJECTS).then((data) => {
+      if (isMounted && data) {
+        setProjects(data);
       }
-    }
+    });
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  const saveProjectsToStorage = (updated: ProjectItem[]) => {
+  const saveProjectsToStorage = async (updated: ProjectItem[]) => {
     setProjects(updated);
-    if (typeof window !== "undefined") {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-        window.dispatchEvent(new Event("portfolio_projects_updated"));
-      } catch (e) {
-        console.error("Failed to save projects", e);
-      }
-    }
+    await saveDynamicData(STORAGE_KEY, updated);
   };
 
   const handleOpenAddModal = () => {

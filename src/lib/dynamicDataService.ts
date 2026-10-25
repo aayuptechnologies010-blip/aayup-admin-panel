@@ -134,3 +134,63 @@ export async function saveDynamicData<T>(key: string, data: T): Promise<{ succes
     return { success: false, error: err?.message || "Failed to sync to cloud" };
   }
 }
+
+/**
+ * Upload image file to backend server / Supabase storage and return live URL (no base64)
+ */
+export async function uploadMediaFile(file: File): Promise<{ success: boolean; url?: string; error?: string }> {
+  const BACKEND_URL =
+    process.env.NEXT_PUBLIC_BACKEND_URL ||
+    process.env.VITE_BACKEND_URL ||
+    "https://api.aayuptechnologies.com";
+
+  // 1. Upload to backend API
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetch(`${BACKEND_URL}/api/upload-media`, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      if (data?.url) {
+        return { success: true, url: data.url };
+      }
+    }
+  } catch (backendErr) {
+    console.warn("[uploadMediaFile] Backend API upload failed, attempting direct Supabase storage:", backendErr);
+  }
+
+  // 2. Direct Supabase storage fallback
+  try {
+    const ext = file.name.split(".").pop() || "png";
+    const cleanFileName = `uploads/${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${ext}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("Aayup")
+      .upload(cleanFileName, file, {
+        contentType: file.type || "image/png",
+        upsert: true,
+      });
+
+    if (!uploadError) {
+      const { data: publicUrlData } = supabase.storage
+        .from("Aayup")
+        .getPublicUrl(cleanFileName);
+
+      if (publicUrlData?.publicUrl) {
+        return { success: true, url: publicUrlData.publicUrl };
+      }
+    } else {
+      console.warn("[uploadMediaFile] Supabase direct storage error:", uploadError);
+    }
+  } catch (supabaseErr: any) {
+    console.error("[uploadMediaFile] Supabase fallback error:", supabaseErr);
+  }
+
+  return { success: false, error: "Failed to upload image to server." };
+}
+

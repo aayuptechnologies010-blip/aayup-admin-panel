@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { supabase } from "@/integrations/supabase/client";
-import { getDynamicData, saveDynamicData } from "@/lib/dynamicDataService";
+import { getDynamicData, saveDynamicData, uploadMediaFile } from "@/lib/dynamicDataService";
 import {
   BookOpen,
   Plus,
@@ -1040,16 +1040,16 @@ export default function AdminBlogs() {
                     type="file"
                     accept="image/*"
                     className="hidden"
-                    onChange={(e) => {
+                    onChange={async (e) => {
                       const file = e.target.files?.[0];
                       if (file) {
-                        const reader = new FileReader();
-                        reader.onload = (ev) => {
-                          if (ev.target?.result) {
-                            setFormData((prev) => ({ ...prev, image_url: ev.target!.result as string }));
-                          }
-                        };
-                        reader.readAsDataURL(file);
+                        const tempUrl = URL.createObjectURL(file);
+                        setFormData((prev) => ({ ...prev, image_url: tempUrl }));
+
+                        const uploadRes = await uploadMediaFile(file);
+                        if (uploadRes.success && uploadRes.url) {
+                          setFormData((prev) => ({ ...prev, image_url: uploadRes.url! }));
+                        }
                       }
                     }}
                   />

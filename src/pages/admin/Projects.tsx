@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
-import { getDynamicData, saveDynamicData } from "@/lib/dynamicDataService";
+import { getDynamicData, saveDynamicData, uploadMediaFile } from "@/lib/dynamicDataService";
 import {
   FolderKanban,
   Plus,
@@ -1051,16 +1051,16 @@ export default function AdminProjects() {
                     type="file"
                     accept="image/*"
                     className="hidden"
-                    onChange={(e) => {
+                    onChange={async (e) => {
                       const file = e.target.files?.[0];
                       if (file) {
-                        const reader = new FileReader();
-                        reader.onload = (ev) => {
-                          if (ev.target?.result) {
-                            setFormData((prev) => ({ ...prev, image: ev.target!.result as string }));
-                          }
-                        };
-                        reader.readAsDataURL(file);
+                        const tempUrl = URL.createObjectURL(file);
+                        setFormData((prev) => ({ ...prev, image: tempUrl }));
+
+                        const uploadRes = await uploadMediaFile(file);
+                        if (uploadRes.success && uploadRes.url) {
+                          setFormData((prev) => ({ ...prev, image: uploadRes.url! }));
+                        }
                       }
                     }}
                   />

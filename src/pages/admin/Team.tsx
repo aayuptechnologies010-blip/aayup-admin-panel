@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
-import { getDynamicData, saveDynamicData } from "@/lib/dynamicDataService";
+import { getDynamicData, saveDynamicData, uploadMediaFile } from "@/lib/dynamicDataService";
 import {
   Users,
   Plus,
@@ -941,16 +941,18 @@ export default function AdminTeam() {
                     type="file"
                     accept="image/*"
                     className="hidden"
-                    onChange={(e) => {
+                    onChange={async (e) => {
                       const file = e.target.files?.[0];
                       if (file) {
-                        const reader = new FileReader();
-                        reader.onload = (ev) => {
-                          if (ev.target?.result) {
-                            setFormData((prev) => ({ ...prev, avatar: ev.target!.result as string }));
-                          }
-                        };
-                        reader.readAsDataURL(file);
+                        // Immediate preview with temporary object URL
+                        const tempUrl = URL.createObjectURL(file);
+                        setFormData((prev) => ({ ...prev, avatar: tempUrl }));
+
+                        // Upload to backend server uploads folder / cloud storage
+                        const uploadRes = await uploadMediaFile(file);
+                        if (uploadRes.success && uploadRes.url) {
+                          setFormData((prev) => ({ ...prev, avatar: uploadRes.url! }));
+                        }
                       }
                     }}
                   />

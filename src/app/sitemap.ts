@@ -1,18 +1,20 @@
 import { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://www.aayuptechnologies.com';
+  const baseUrl = 'https://admin.aayuptechnologies.com';
 
   const routes = [
     '',
-    '/about',
-    '/services',
-    '/projects',
-    '/clients',
-    '/contact',
-    '/careers',
-    '/pricing',
-    '/blog',
+    '/admin',
+    '/admin/jobs',
+    '/admin/applications',
+    '/admin/enquiry',
+    '/admin/testimonals',
+    '/admin/projects',
+    '/admin/blogs',
+    '/admin/faqs',
+    '/admin/team',
+    '/admin/contact',
   ];
 
   return routes.map((route) => ({

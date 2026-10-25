@@ -6,9 +6,9 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/admin', '/api/'],
+        disallow: ['/api/'],
       },
     ],
-    sitemap: 'https://www.aayuptechnologies.com/sitemap.xml',
+    sitemap: 'https://admin.aayuptechnologies.com/sitemap.xml',
   };
 }

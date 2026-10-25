@@ -1,11 +1,11 @@
 import { Metadata } from 'next';
 
 export const siteConfig = {
-  name: 'Aayup Technologies Pvt. Ltd.',
-  shortName: 'Aayup Technologies',
-  description: 'Leading IT company providing Web Development, Mobile Apps, UI/UX Design, Cloud Solutions, AI Services & Student Training Programs.',
-  url: 'https://www.aayuptechnologies.com',
-  ogImage: 'https://www.aayuptechnologies.com/og_image.png',
+  name: 'Aayup Technologies Admin Portal',
+  shortName: 'Aayup Admin',
+  description: 'Secure Enterprise Management & CMS Dashboard for Aayup Technologies operations, client inquiries, applications, and portfolio.',
+  url: 'https://admin.aayuptechnologies.com',
+  ogImage: 'https://admin.aayuptechnologies.com/admin-og.png',
   phone: '+91-8382984709',
   email: 'aayup.technologies.010@gmail.com',
   address: {
@@ -29,7 +29,7 @@ export const siteConfig = {
 };
 
 export function constructMetadata({
-  title = `${siteConfig.name} - Digital Solutions & IT Services`,
+  title = 'Aayup Technologies Admin Portal | Management & CMS Suite',
   description = siteConfig.description,
   image = siteConfig.ogImage,
   canonical = siteConfig.url,

@@ -58,7 +58,7 @@ import {
 export interface ProjectItem {
   id: string;
   title: string;
-  category: "Websites" | "Mobile Apps" | "CRM / ERP" | "AI & Automation";
+  category: string;
   shortDescription: string;
   fullDescription: string;
   image: string;
@@ -260,7 +260,7 @@ export default function AdminProjects() {
   // Form State
   const [formData, setFormData] = useState({
     title: "",
-    category: "Websites" as ProjectItem["category"],
+    category: "Websites",
     shortDescription: "",
     fullDescription: "",
     image: "/project-web-development.webp",
@@ -274,6 +274,17 @@ export default function AdminProjects() {
     demoType: "Case Study" as ProjectItem["demoType"],
     demoUrl: "",
   });
+
+  // Dynamically derived project categories + default options
+  const projectCategoryOptions = Array.from(
+    new Set([
+      "Websites",
+      "Mobile Apps",
+      "CRM / ERP",
+      "AI & Automation",
+      ...projects.map((p) => p.category).filter(Boolean),
+    ])
+  );
 
   // Load from localStorage on client mount
   useEffect(() => {
@@ -661,7 +672,7 @@ export default function AdminProjects() {
         <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between">
           {/* Category Filter Pills */}
           <div className="flex gap-2 overflow-x-auto pb-1 md:pb-0 no-scrollbar">
-            {["all", "Websites", "Mobile Apps", "CRM / ERP", "AI & Automation"].map((cat) => (
+            {["all", ...projectCategoryOptions].map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
@@ -983,19 +994,26 @@ export default function AdminProjects() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-800 mb-1">Category *</label>
-                <select
-                  value={formData.category}
-                  onChange={(e) =>
-                    setFormData({ ...formData, category: e.target.value as ProjectItem["category"] })
-                  }
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 text-xs font-semibold focus:ring-2 focus:ring-[#1769AA]/30 focus:border-[#1769AA] focus:outline-none transition-all shadow-sm"
-                >
-                  <option value="Websites" className="text-slate-900 py-1 bg-white">Websites</option>
-                  <option value="Mobile Apps" className="text-slate-900 py-1 bg-white">Mobile Apps</option>
-                  <option value="CRM / ERP" className="text-slate-900 py-1 bg-white">CRM / ERP</option>
-                  <option value="AI & Automation" className="text-slate-900 py-1 bg-white">AI & Automation</option>
-                </select>
+                <label className="block text-xs font-bold text-slate-800 mb-1 flex items-center justify-between">
+                  <span>Category *</span>
+                  <span className="text-[10px] font-normal text-slate-500">Select or type custom</span>
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    required
+                    list="project-category-list"
+                    value={formData.category}
+                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                    placeholder="e.g. SaaS Platform / Fintech App / IoT"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-xs font-semibold focus:ring-2 focus:ring-[#1769AA]/30 focus:border-[#1769AA] focus:outline-none transition-all shadow-sm"
+                  />
+                  <datalist id="project-category-list">
+                    {projectCategoryOptions.map((c) => (
+                      <option key={c} value={c} />
+                    ))}
+                  </datalist>
+                </div>
               </div>
             </div>
 

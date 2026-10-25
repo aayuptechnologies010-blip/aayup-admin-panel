@@ -1015,18 +1015,26 @@ export default function AdminBlogs() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Topic Category *</label>
-                <select
-                  value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-[#1769AA]/30 focus:outline-none bg-white font-medium"
-                >
-                  <option value="AI & Technology">AI & Technology</option>
-                  <option value="Web Development">Web Development</option>
-                  <option value="Mobile Development">Mobile Development</option>
-                  <option value="Cloud & DevOps">Cloud & DevOps</option>
-                  <option value="Career Development">Career Development</option>
-                </select>
+                <label className="block text-xs font-bold text-slate-800 mb-1.5 flex items-center justify-between">
+                  <span>Topic Category *</span>
+                  <span className="text-[10px] font-normal text-slate-500">Select or type custom</span>
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    required
+                    list="blog-category-list"
+                    value={formData.category}
+                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                    placeholder="e.g. Next.js Architecture / Cyber Security"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-xs font-semibold focus:ring-2 focus:ring-[#1769AA]/30 focus:border-[#1769AA] focus:outline-none transition-all shadow-sm"
+                  />
+                  <datalist id="blog-category-list">
+                    {Array.from(new Set(["AI & Technology", "Web Development", "Mobile Development", "Cloud & DevOps", "Career Development", ...categoriesList])).map((cat) => (
+                      <option key={cat} value={cat} />
+                    ))}
+                  </datalist>
+                </div>
               </div>
 
               <div>

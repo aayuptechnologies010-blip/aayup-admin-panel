@@ -44,7 +44,7 @@ import { Button } from "@/components/ui/button";
 
 export interface FAQItem {
   id: string;
-  category: "Timeline & Delivery" | "Pricing & Payment" | "Code & Ownership" | "Support & Tech";
+  category: string;
   question: string;
   answer: string;
   active?: boolean;
@@ -118,11 +118,22 @@ export default function AdminFaqs() {
 
   // Form State
   const [formData, setFormData] = useState({
-    category: "Timeline & Delivery" as FAQItem["category"],
+    category: "Timeline & Delivery",
     question: "",
     answer: "",
     active: true,
   });
+
+  // Dynamically derived FAQ categories + default options
+  const faqCategoryOptions = Array.from(
+    new Set([
+      "Timeline & Delivery",
+      "Pricing & Payment",
+      "Code & Ownership",
+      "Support & Tech",
+      ...faqs.map((f) => f.category).filter(Boolean),
+    ])
+  );
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -467,21 +478,19 @@ export default function AdminFaqs() {
         <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between">
           {/* Category Filter Pills */}
           <div className="flex gap-2 overflow-x-auto pb-1 md:pb-0 no-scrollbar">
-            {["all", "Timeline & Delivery", "Pricing & Payment", "Code & Ownership", "Support & Tech"].map(
-              (cat) => (
-                <button
-                  key={cat}
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`px-3.5 py-1.5 rounded-xl font-bold text-xs whitespace-nowrap transition-all ${
-                    selectedCategory === cat
-                      ? "bg-[#1769AA] text-white shadow-md shadow-[#1769AA]/30"
-                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                  }`}
-                >
-                  {cat === "all" ? "All Categories" : cat}
-                </button>
-              )
-            )}
+            {["all", ...faqCategoryOptions].map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-3.5 py-1.5 rounded-xl font-bold text-xs whitespace-nowrap transition-all ${
+                  selectedCategory === cat
+                    ? "bg-[#1769AA] text-white shadow-md shadow-[#1769AA]/30"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                }`}
+              >
+                {cat === "all" ? "All Categories" : cat}
+              </button>
+            ))}
           </div>
 
           {/* Search Bar + Create Button */}
@@ -599,19 +608,26 @@ export default function AdminFaqs() {
 
           <form onSubmit={handleSaveFaq} className="space-y-4 mt-2">
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Category *</label>
-              <select
-                value={formData.category}
-                onChange={(e) =>
-                  setFormData({ ...formData, category: e.target.value as FAQItem["category"] })
-                }
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-[#1769AA]/30 focus:outline-none bg-white font-medium"
-              >
-                <option value="Timeline & Delivery">Timeline & Delivery</option>
-                <option value="Pricing & Payment">Pricing & Payment</option>
-                <option value="Code & Ownership">Code & Ownership</option>
-                <option value="Support & Tech">Support & Tech</option>
-              </select>
+              <label className="block text-xs font-bold text-slate-800 mb-1 flex items-center justify-between">
+                <span>Category *</span>
+                <span className="text-[10px] font-normal text-slate-500">Select or type custom</span>
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  required
+                  list="faq-category-list"
+                  value={formData.category}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  placeholder="e.g. Security & Compliance / AI Solutions"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-xs font-semibold focus:ring-2 focus:ring-[#1769AA]/30 focus:border-[#1769AA] focus:outline-none transition-all shadow-sm"
+                />
+                <datalist id="faq-category-list">
+                  {faqCategoryOptions.map((c) => (
+                    <option key={c} value={c} />
+                  ))}
+                </datalist>
+              </div>
             </div>
 
             <div>

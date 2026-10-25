@@ -63,7 +63,7 @@ export interface TeamMember {
   id: string;
   name: string;
   role: string;
-  department: "Leadership" | "Engineering" | "Design & UX" | "Product & Ops";
+  department: string;
   badge: string;
   bio: string;
   avatar?: string;
@@ -136,7 +136,7 @@ export default function AdminTeam() {
   const [formData, setFormData] = useState({
     name: "",
     role: "",
-    department: "Engineering" as TeamMember["department"],
+    department: "Engineering",
     badge: "Engineering",
     bio: "",
     avatar: "",
@@ -147,6 +147,11 @@ export default function AdminTeam() {
     github: "",
     active: true,
   });
+
+  // Dynamically derived unique departments + default options
+  const departmentOptions = Array.from(
+    new Set(["Leadership", "Engineering", "Design & UX", "Product & Ops", ...members.map((m) => m.department).filter(Boolean)])
+  );
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -526,7 +531,7 @@ export default function AdminTeam() {
         <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between">
           {/* Department Filter Pills */}
           <div className="flex gap-2 overflow-x-auto pb-1 md:pb-0 no-scrollbar">
-            {["all", "Leadership", "Engineering", "Design & UX", "Product & Ops"].map((dept) => (
+            {["all", ...departmentOptions].map((dept) => (
               <button
                 key={dept}
                 onClick={() => setSelectedDept(dept)}
@@ -877,21 +882,25 @@ export default function AdminTeam() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-800 mb-1.5">Department *</label>
-                <div className="relative">
-                  <select
+                <label className="block text-xs font-bold text-slate-800 mb-1.5 flex items-center justify-between">
+                  <span>Department *</span>
+                  <span className="text-[10px] font-normal text-slate-500">Select or type custom</span>
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    required
+                    list="team-dept-list"
                     value={formData.department}
-                    onChange={(e) =>
-                      setFormData({ ...formData, department: e.target.value as TeamMember["department"] })
-                    }
-                    className="w-full appearance-none px-3.5 py-2.5 pr-8 rounded-xl border border-slate-300 bg-white text-slate-900 text-xs font-semibold focus:ring-2 focus:ring-[#1769AA]/30 focus:border-[#1769AA] focus:outline-none transition-all shadow-sm cursor-pointer"
-                  >
-                    <option value="Leadership" className="py-1 text-slate-900">Leadership</option>
-                    <option value="Engineering" className="py-1 text-slate-900">Engineering</option>
-                    <option value="Design & UX" className="py-1 text-slate-900">Design & UX</option>
-                    <option value="Product & Ops" className="py-1 text-slate-900">Product & Ops</option>
-                  </select>
-                  <ChevronDown className="w-4 h-4 text-slate-500 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                    placeholder="e.g. AI Research / Sales / QA"
+                    className="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-xs font-semibold focus:ring-2 focus:ring-[#1769AA]/30 focus:border-[#1769AA] focus:outline-none transition-all shadow-sm"
+                  />
+                  <datalist id="team-dept-list">
+                    {departmentOptions.map((d) => (
+                      <option key={d} value={d} />
+                    ))}
+                  </datalist>
                 </div>
               </div>
             </div>

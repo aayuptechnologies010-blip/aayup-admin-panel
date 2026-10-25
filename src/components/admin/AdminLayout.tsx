@@ -262,7 +262,7 @@ export default function AdminLayout({
           {/* Right Header Quick Links */}
           <div className="flex items-center gap-2.5">
             <a
-              href="http://localhost:3000"
+              href="https://www.aayuptechnologies.com"
               target="_blank"
               rel="noreferrer"
               className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-slate-50 text-[#1769AA] hover:text-[#0D4F85] text-xs font-bold border border-slate-200 shadow-sm transition-colors"

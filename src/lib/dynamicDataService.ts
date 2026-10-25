@@ -90,6 +90,27 @@ export async function saveDynamicData<T>(key: string, data: T): Promise<{ succes
     return { success: true };
   }
 
+  const BACKEND_URL =
+    process.env.NEXT_PUBLIC_BACKEND_URL ||
+    process.env.VITE_BACKEND_URL ||
+    "https://api.aayuptechnologies.com";
+
+  // 1. Try sending to backend API first (uses secure server role, bypasses RLS)
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/dynamic-data`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key, data }),
+    });
+
+    if (res.ok) {
+      return { success: true };
+    }
+  } catch (backendErr) {
+    console.warn("[saveDynamicData] Backend endpoint unreachable, trying client storage:", backendErr);
+  }
+
+  // 2. Direct Supabase client fallback
   try {
     const jsonBlob = new Blob([JSON.stringify(data, null, 2)], {
       type: "application/json",
@@ -103,7 +124,7 @@ export async function saveDynamicData<T>(key: string, data: T): Promise<{ succes
       });
 
     if (error) {
-      console.error(`[saveDynamicData] Failed to save ${fileName} to Supabase:`, error);
+      console.warn(`[saveDynamicData] Supabase direct upload error:`, error);
       return { success: false, error: error.message };
     }
 

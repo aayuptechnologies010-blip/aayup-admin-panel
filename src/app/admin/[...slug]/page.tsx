@@ -56,7 +56,7 @@ const AdminFaqs = dynamic(() => import("@/pages/admin/Faqs"), {
   ssr: false,
   loading: LoadingFallback,
 });
-const AdminTeam = dynamic(() => import("@/pages/admin/Team"), {
+const AdminTeam = dynamic(() => import("@/pages/admin/team"), {
   ssr: false,
   loading: LoadingFallback,
 });

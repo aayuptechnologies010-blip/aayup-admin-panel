@@ -6,7 +6,7 @@ export const siteConfig = {
   description: 'Secure Enterprise Management & CMS Dashboard for Aayup Technologies operations, client inquiries, applications, and portfolio.',
   url: 'https://admin.aayuptechnologies.com',
   ogImage: 'https://admin.aayuptechnologies.com/admin-og.png',
-  phone: '+91-8382984709',
+  phone: '+91-7030839883',
   email: 'aayup.technologies.010@gmail.com',
   address: {
     street: 'Room No. A/302, Gajanan Apartment, Near Pathak School, Sahakar Nagar, Virar East',

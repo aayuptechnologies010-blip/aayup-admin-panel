@@ -74,21 +74,27 @@ export interface TeamMember {
   facebook?: string;
   github?: string;
   active?: boolean;
+  isDirector?: boolean;
+  directorField?: string;
+  directorMessage?: string;
 }
 
 const SEED_TEAM_MEMBERS: TeamMember[] = [
   {
     id: "member-aayush",
     name: "Aayush Pandey",
-    role: "Lead Software Architect & Engineering Lead",
+    role: "Managing Director & Chief Technology Officer",
     department: "Leadership",
-    badge: "Core Team",
-    bio: "Guides full-stack engineering, cloud architecture, and technical innovation across client software engagements.",
-    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop",
+    badge: "Director",
+    bio: "Guides overall technical vision, software architecture, enterprise engineering, and AI-driven technology transformations across all company ventures.",
+    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=1200&auto=format&fit=crop&q=95",
     linkedin: "https://linkedin.com/in/aayush-pandey",
     instagram: "https://instagram.com/aayush_pandey",
     facebook: "https://facebook.com/aayush.pandey",
     active: true,
+    isDirector: true,
+    directorField: "Technology & Software Engineering",
+    directorMessage: "At AAYUP Technologies, our focus is building scalable, modern enterprise software architectures with zero compromise on performance and user delight.",
   },
   {
     id: "member-sarthak",
@@ -97,11 +103,12 @@ const SEED_TEAM_MEMBERS: TeamMember[] = [
     department: "Engineering",
     badge: "Engineering",
     bio: "Specializes in modern React/Next.js platforms, cross-platform mobile architecture, and resilient API systems.",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200&auto=format&fit=crop&q=95",
     linkedin: "https://linkedin.com/in/sarthak-verma",
     instagram: "https://instagram.com/sarthak_verma",
     facebook: "https://facebook.com/sarthak.verma",
     active: true,
+    isDirector: false,
   },
   {
     id: "member-collective",
@@ -110,11 +117,12 @@ const SEED_TEAM_MEMBERS: TeamMember[] = [
     department: "Engineering",
     badge: "Technical Specialists",
     bio: "Dedicated team of UI/UX designers, backend developers, and quality engineers building high-performance digital products.",
-    avatar: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=400&auto=format&fit=crop",
+    avatar: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200&auto=format&fit=crop&q=95",
     linkedin: "https://linkedin.com/company/aayup-technologies",
     instagram: "https://instagram.com/aayuptechnologies",
     facebook: "https://facebook.com/aayuptechnologies",
     active: true,
+    isDirector: false,
   },
 ];
 
@@ -147,6 +155,9 @@ export default function AdminTeam() {
     facebook: "",
     github: "",
     active: true,
+    isDirector: false,
+    directorField: "",
+    directorMessage: "",
   });
 
   // Dynamically derived unique departments + default options
@@ -176,16 +187,19 @@ export default function AdminTeam() {
     setFormData({
       name: "",
       role: "",
-      department: "Engineering",
-      badge: "Core Team",
+      department: "Leadership",
+      badge: "Director",
       bio: "",
-      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop",
+      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=1200&auto=format&fit=crop&q=95",
       email: "",
       linkedin: "",
       instagram: "",
       facebook: "",
       github: "",
       active: true,
+      isDirector: false,
+      directorField: "",
+      directorMessage: "",
     });
     setIsModalOpen(true);
   };
@@ -205,6 +219,9 @@ export default function AdminTeam() {
       facebook: m.facebook || "",
       github: m.github || "",
       active: m.active ?? true,
+      isDirector: m.isDirector ?? false,
+      directorField: m.directorField || "",
+      directorMessage: m.directorMessage || "",
     });
     setIsModalOpen(true);
   };
@@ -233,6 +250,9 @@ export default function AdminTeam() {
               facebook: formData.facebook || undefined,
               github: formData.github || undefined,
               active: formData.active,
+              isDirector: formData.isDirector,
+              directorField: formData.directorField || undefined,
+              directorMessage: formData.directorMessage || undefined,
             }
           : m
       );
@@ -253,6 +273,9 @@ export default function AdminTeam() {
         facebook: formData.facebook || undefined,
         github: formData.github || undefined,
         active: formData.active,
+        isDirector: formData.isDirector,
+        directorField: formData.directorField || undefined,
+        directorMessage: formData.directorMessage || undefined,
       };
       persistMembers([...members, newMember]);
       toast({ title: "Member Added", description: `${formData.name} added to the team.` });
@@ -284,6 +307,7 @@ export default function AdminTeam() {
   // Stats Calculations
   const totalMembers = members.length;
   const activeCount = members.filter((m) => m.active !== false).length;
+  const directorsCount = members.filter((m) => m.isDirector && m.active !== false).length;
   const leadershipCount = members.filter((m) => m.department === "Leadership").length;
   const engineeringCount = members.filter((m) => m.department === "Engineering").length;
   const designCount = members.filter((m) => m.department === "Design & UX").length;
@@ -364,23 +388,23 @@ export default function AdminTeam() {
             </div>
           </div>
 
-          {/* Card 3: Leadership & Design */}
-          <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm relative overflow-hidden group hover:shadow-md hover:border-indigo-400/40 transition-all">
+          {/* Card 3: Board of Directors */}
+          <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm relative overflow-hidden group hover:shadow-md hover:border-amber-400/40 transition-all">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                  Leadership & Design
+                  Board of Directors
                 </p>
-                <h3 className="text-2xl font-black text-indigo-600 mt-1">
-                  {leadershipCount + designCount}
+                <h3 className="text-2xl font-black text-amber-600 mt-1">
+                  {directorsCount}
                 </h3>
               </div>
-              <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+              <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
                 <Award className="w-6 h-6" />
               </div>
             </div>
-            <div className="mt-3 flex items-center gap-2 text-xs text-indigo-700">
-              <span>{leadershipCount} Core Lead</span> • <span>{designCount} UI/UX Specialists</span>
+            <div className="mt-3 flex items-center gap-2 text-xs text-amber-700">
+              <span>{directorsCount} Featured in Zig-Zag Section</span>
             </div>
           </div>
 
@@ -627,7 +651,19 @@ export default function AdminTeam() {
                       </TableCell>
 
                       <TableCell className="py-3">
-                        <span className="text-xs font-semibold text-[#1769AA]">{member.role}</span>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="text-xs font-semibold text-[#1769AA]">{member.role}</span>
+                          {member.isDirector && (
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300">
+                              ★ Director
+                            </span>
+                          )}
+                        </div>
+                        {member.isDirector && member.directorField && (
+                          <span className="text-[11px] font-medium text-amber-700 block mt-0.5">
+                            Field: {member.directorField}
+                          </span>
+                        )}
                         <span className="text-[10px] text-slate-400 block">{member.badge}</span>
                       </TableCell>
 
@@ -759,12 +795,24 @@ export default function AdminTeam() {
                     </div>
                   </div>
 
-                  <h4 className="text-base font-bold text-slate-900 group-hover:text-[#1769AA] transition-colors">
-                    {member.name}
-                  </h4>
+                  <div className="flex items-center gap-2 mt-1">
+                    <h4 className="text-base font-bold text-slate-900 group-hover:text-[#1769AA] transition-colors">
+                      {member.name}
+                    </h4>
+                    {member.isDirector && (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300">
+                        ★ Director
+                      </span>
+                    )}
+                  </div>
                   <p className="text-xs font-semibold text-[#1769AA] mt-0.5">
                     {member.role}
                   </p>
+                  {member.isDirector && member.directorField && (
+                    <p className="text-[11px] font-semibold text-amber-700 mt-1 flex items-center gap-1">
+                      <span>Field:</span> {member.directorField}
+                    </p>
+                  )}
                   <p className="text-xs text-slate-500 mt-2.5 leading-relaxed line-clamp-3">
                     {member.bio}
                   </p>
@@ -1039,6 +1087,57 @@ export default function AdminTeam() {
                 placeholder="Guides engineering, cloud platforms, and architecture..."
                 className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-xs font-medium focus:ring-2 focus:ring-[#1769AA]/30 focus:border-[#1769AA] focus:outline-none transition-all shadow-sm leading-relaxed"
               />
+            </div>
+
+            {/* Director / Leadership Profile Settings */}
+            <div className="p-4 rounded-xl bg-gradient-to-r from-blue-50/80 to-indigo-50/80 border border-blue-200/80 space-y-3.5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Award className="w-4 h-4 text-[#1769AA]" />
+                  <span className="text-xs font-bold text-slate-900">
+                    Is this member a Director? (बोर्ड ऑफ डायरेक्टर्स)
+                  </span>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.isDirector}
+                    onChange={(e) => setFormData({ ...formData, isDirector: e.target.checked })}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#1769AA]"></div>
+                </label>
+              </div>
+
+              {formData.isDirector && (
+                <div className="space-y-3 pt-2 border-t border-blue-200/60 animate-in fade-in duration-200">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-800 mb-1">
+                      Director of which Field? (उदा. Technology, Operations, AI & Research, Marketing) *
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.directorField}
+                      onChange={(e) => setFormData({ ...formData, directorField: e.target.value })}
+                      placeholder="e.g. Technology & Cloud Architecture"
+                      className="w-full px-3.5 py-2 rounded-xl border border-blue-300 bg-white text-slate-900 placeholder:text-slate-400 text-xs font-medium focus:ring-2 focus:ring-[#1769AA]/30 focus:border-[#1769AA] focus:outline-none shadow-sm"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-800 mb-1">
+                      Director Vision / About Us Message (Showcased in Director Hero Feature)
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={formData.directorMessage}
+                      onChange={(e) => setFormData({ ...formData, directorMessage: e.target.value })}
+                      placeholder="e.g. Leading strategic digital innovation and scaling resilient software solutions for global enterprises."
+                      className="w-full px-3.5 py-2 rounded-xl border border-blue-300 bg-white text-slate-900 placeholder:text-slate-400 text-xs font-medium focus:ring-2 focus:ring-[#1769AA]/30 focus:border-[#1769AA] focus:outline-none shadow-sm leading-relaxed"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="flex items-center gap-2.5 pt-1 bg-slate-50 p-3 rounded-xl border border-slate-200">

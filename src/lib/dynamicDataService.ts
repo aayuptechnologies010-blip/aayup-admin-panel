@@ -92,22 +92,23 @@ export async function saveDynamicData<T>(key: string, data: T): Promise<{ succes
 
   const BACKEND_URL =
     process.env.NEXT_PUBLIC_BACKEND_URL ||
-    process.env.VITE_BACKEND_URL ||
-    "https://api.aayuptechnologies.com";
+    process.env.VITE_BACKEND_URL;
 
-  // 1. Try sending to backend API first (uses secure server role, bypasses RLS)
-  try {
-    const res = await fetch(`${BACKEND_URL}/api/dynamic-data`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ key, data }),
-    });
+  // 1. Try sending to backend API first if configured
+  if (BACKEND_URL) {
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/dynamic-data`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key, data }),
+      });
 
-    if (res.ok) {
-      return { success: true };
+      if (res.ok) {
+        return { success: true };
+      }
+    } catch (backendErr) {
+      console.warn("[saveDynamicData] Backend endpoint unreachable, trying client storage:", backendErr);
     }
-  } catch (backendErr) {
-    console.warn("[saveDynamicData] Backend endpoint unreachable, trying client storage:", backendErr);
   }
 
   // 2. Direct Supabase client fallback
@@ -141,27 +142,28 @@ export async function saveDynamicData<T>(key: string, data: T): Promise<{ succes
 export async function uploadMediaFile(file: File): Promise<{ success: boolean; url?: string; error?: string }> {
   const BACKEND_URL =
     process.env.NEXT_PUBLIC_BACKEND_URL ||
-    process.env.VITE_BACKEND_URL ||
-    "https://api.aayuptechnologies.com";
+    process.env.VITE_BACKEND_URL;
 
-  // 1. Upload to backend API
-  try {
-    const formData = new FormData();
-    formData.append("file", file);
+  // 1. Upload to backend API if configured
+  if (BACKEND_URL) {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
 
-    const res = await fetch(`${BACKEND_URL}/api/upload-media`, {
-      method: "POST",
-      body: formData,
-    });
+      const res = await fetch(`${BACKEND_URL}/api/upload-media`, {
+        method: "POST",
+        body: formData,
+      });
 
-    if (res.ok) {
-      const data = await res.json();
-      if (data?.url) {
-        return { success: true, url: data.url };
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.url) {
+          return { success: true, url: data.url };
+        }
       }
+    } catch (backendErr) {
+      console.warn("[uploadMediaFile] Backend API upload failed, attempting direct Supabase storage:", backendErr);
     }
-  } catch (backendErr) {
-    console.warn("[uploadMediaFile] Backend API upload failed, attempting direct Supabase storage:", backendErr);
   }
 
   // 2. Direct Supabase storage fallback

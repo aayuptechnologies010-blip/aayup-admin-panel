@@ -258,21 +258,11 @@ export default function AdminProjects() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [projectToDelete, setProjectToDelete] = useState<ProjectItem | null>(null);
 
-  // Form State
+  // Form State - only required fields: Title, Category, Image, Live Demo Link
   const [formData, setFormData] = useState({
     title: "",
     category: "Websites",
-    shortDescription: "",
-    fullDescription: "",
     image: "/project-web-development.webp",
-    tags: "React, Next.js, Node.js",
-    problem: "",
-    solution: "",
-    features: "Secure authentication, Real-time sync, Analytics dashboard",
-    duration: "3 Months",
-    team: "4 Engineers",
-    status: "Completed",
-    demoType: "Case Study" as ProjectItem["demoType"],
     demoUrl: "",
   });
 
@@ -310,17 +300,7 @@ export default function AdminProjects() {
     setFormData({
       title: "",
       category: "Websites",
-      shortDescription: "",
-      fullDescription: "",
       image: "/project-web-development.webp",
-      tags: "React, Next.js, Node.js",
-      problem: "",
-      solution: "",
-      features: "High throughput architecture, Modern UI/UX, Cloud telemetry",
-      duration: "3 Months",
-      team: "4 Engineers",
-      status: "Completed",
-      demoType: "Case Study",
       demoUrl: "",
     });
     setIsModalOpen(true);
@@ -331,17 +311,7 @@ export default function AdminProjects() {
     setFormData({
       title: p.title,
       category: p.category,
-      shortDescription: p.shortDescription,
-      fullDescription: p.fullDescription,
       image: p.image,
-      tags: p.tags.join(", "),
-      problem: p.problem,
-      solution: p.solution,
-      features: p.features.join(", "),
-      duration: p.duration,
-      team: p.team,
-      status: p.status,
-      demoType: p.demoType,
       demoUrl: p.demoUrl || "",
     });
     setIsModalOpen(true);
@@ -354,9 +324,6 @@ export default function AdminProjects() {
       return;
     }
 
-    const tagArray = formData.tags.split(",").map((t) => t.trim()).filter(Boolean);
-    const featureArray = formData.features.split(",").map((f) => f.trim()).filter(Boolean);
-
     if (editingProject) {
       // Update
       const updated = projects.map((p) =>
@@ -365,18 +332,8 @@ export default function AdminProjects() {
               ...p,
               title: formData.title,
               category: formData.category,
-              shortDescription: formData.shortDescription,
-              fullDescription: formData.fullDescription,
               image: formData.image,
               images: [formData.image],
-              tags: tagArray,
-              problem: formData.problem,
-              solution: formData.solution,
-              features: featureArray,
-              duration: formData.duration,
-              team: formData.team,
-              status: formData.status,
-              demoType: formData.demoType,
               demoUrl: formData.demoUrl || undefined,
             }
           : p
@@ -390,19 +347,19 @@ export default function AdminProjects() {
         id: newId,
         title: formData.title,
         category: formData.category,
-        shortDescription: formData.shortDescription,
-        fullDescription: formData.fullDescription,
+        shortDescription: "",
+        fullDescription: "",
         image: formData.image,
         images: [formData.image],
-        tags: tagArray,
-        problem: formData.problem,
-        solution: formData.solution,
-        features: featureArray,
-        technologies: tagArray.map((t) => ({ name: t, role: "Core Tech" })),
-        duration: formData.duration,
-        team: formData.team,
-        status: formData.status,
-        demoType: formData.demoType,
+        tags: [],
+        problem: "",
+        solution: "",
+        features: [],
+        technologies: [],
+        duration: "",
+        team: "",
+        status: "Active",
+        demoType: "Live Demo",
         demoUrl: formData.demoUrl || undefined,
       };
       saveProjectsToStorage([newProj, ...projects]);
@@ -960,82 +917,57 @@ export default function AdminProjects() {
 
       {/* ADD / EDIT MODAL */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-6">
+        <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-6">
           <DialogHeader>
             <DialogTitle className="text-lg font-bold text-slate-900">
-              {editingProject ? "Edit Portfolio Project" : "Add New Portfolio Project"}
+              {editingProject ? "Edit Project" : "Add New Project"}
             </DialogTitle>
             <DialogDescription className="text-xs text-slate-500">
-              Fill in case study specifics, category, tags, and architecture details.
+              Manage project name, category, image, and live demo link.
             </DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleSaveProject} className="space-y-4 mt-2">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-800 mb-1">Project Title *</label>
+            <div>
+              <label className="block text-xs font-bold text-slate-800 mb-1">Project Name (Title) *</label>
+              <input
+                type="text"
+                required
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                placeholder="e.g. Digi Campus Pro"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-xs font-medium focus:ring-2 focus:ring-[#1769AA]/30 focus:border-[#1769AA] focus:outline-none transition-all shadow-sm"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-800 mb-1 flex items-center justify-between">
+                <span>Category *</span>
+                <span className="text-[10px] font-normal text-slate-500">Select or enter category</span>
+              </label>
+              <div className="flex gap-2">
                 <input
                   type="text"
                   required
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  placeholder="e.g. SynergyFlow Enterprise CRM"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-xs font-medium focus:ring-2 focus:ring-[#1769AA]/30 focus:border-[#1769AA] focus:outline-none transition-all shadow-sm"
+                  list="project-category-list"
+                  value={formData.category}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  placeholder="e.g. Websites, Mobile Apps, CRM / ERP"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-xs font-semibold focus:ring-2 focus:ring-[#1769AA]/30 focus:border-[#1769AA] focus:outline-none transition-all shadow-sm"
                 />
+                <datalist id="project-category-list">
+                  {projectCategoryOptions.map((c) => (
+                    <option key={c} value={c} />
+                  ))}
+                </datalist>
               </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-800 mb-1 flex items-center justify-between">
-                  <span>Category *</span>
-                  <span className="text-[10px] font-normal text-slate-500">Select or type custom</span>
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    required
-                    list="project-category-list"
-                    value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    placeholder="e.g. SaaS Platform / Fintech App / IoT"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-xs font-semibold focus:ring-2 focus:ring-[#1769AA]/30 focus:border-[#1769AA] focus:outline-none transition-all shadow-sm"
-                  />
-                  <datalist id="project-category-list">
-                    {projectCategoryOptions.map((c) => (
-                      <option key={c} value={c} />
-                    ))}
-                  </datalist>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-slate-800 mb-1">Short Description *</label>
-              <textarea
-                required
-                rows={2}
-                value={formData.shortDescription}
-                onChange={(e) => setFormData({ ...formData, shortDescription: e.target.value })}
-                placeholder="1-2 sentences summarizing the client project..."
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-xs font-medium focus:ring-2 focus:ring-[#1769AA]/30 focus:border-[#1769AA] focus:outline-none transition-all shadow-sm"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-slate-800 mb-1">Full Description</label>
-              <textarea
-                rows={3}
-                value={formData.fullDescription}
-                onChange={(e) => setFormData({ ...formData, fullDescription: e.target.value })}
-                placeholder="In-depth explanation of system engineering..."
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-xs font-medium focus:ring-2 focus:ring-[#1769AA]/30 focus:border-[#1769AA] focus:outline-none transition-all shadow-sm"
-              />
             </div>
 
             {/* Project Thumbnail Image: Direct File Upload or Image URL */}
             <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2.5">
               <div className="flex items-center justify-between">
                 <label className="block text-xs font-bold text-slate-800">
-                  Project Thumbnail Image *
+                  Project Image *
                 </label>
                 <span className="text-[11px] text-slate-500 font-medium">
                   Upload file or paste URL
@@ -1046,7 +978,7 @@ export default function AdminProjects() {
                 {/* Upload Button */}
                 <label className="px-3.5 py-2 rounded-xl bg-white border border-slate-300 hover:border-[#1769AA] text-slate-700 hover:text-[#1769AA] text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs shrink-0">
                   <Upload className="w-3.5 h-3.5" />
-                  <span>Choose Image File</span>
+                  <span>Choose Image</span>
                   <input
                     type="file"
                     accept="image/*"
@@ -1071,7 +1003,7 @@ export default function AdminProjects() {
                   type="text"
                   value={formData.image}
                   onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                  placeholder="Or enter URL: https://... or /project.webp"
+                  placeholder="https://... or /project.webp"
                   className="flex-1 px-3.5 py-2 rounded-xl border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-xs font-medium focus:ring-2 focus:ring-[#1769AA]/30 focus:border-[#1769AA] focus:outline-none shadow-sm"
                 />
 
@@ -1091,117 +1023,19 @@ export default function AdminProjects() {
               </div>
             </div>
 
-            {/* Live Project URL & Demo Type */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-800 mb-1 flex items-center gap-1.5">
-                  <ExternalLink className="w-3.5 h-3.5 text-[#1769AA]" />
-                  Live Website / Project Demo Link
-                </label>
-                <input
-                  type="url"
-                  value={formData.demoUrl}
-                  onChange={(e) => setFormData({ ...formData, demoUrl: e.target.value })}
-                  placeholder="https://example.com or https://app.client.com"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-xs font-medium focus:ring-2 focus:ring-[#1769AA]/30 focus:border-[#1769AA] focus:outline-none transition-all shadow-sm"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-800 mb-1">Demo Action Type</label>
-                <select
-                  value={formData.demoType}
-                  onChange={(e) =>
-                    setFormData({ ...formData, demoType: e.target.value as ProjectItem["demoType"] })
-                  }
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 text-xs font-semibold focus:ring-2 focus:ring-[#1769AA]/30 focus:border-[#1769AA] focus:outline-none transition-all shadow-sm"
-                >
-                  <option value="Live Demo" className="text-slate-900 py-1 bg-white">Live Demo</option>
-                  <option value="Case Study" className="text-slate-900 py-1 bg-white">Case Study</option>
-                  <option value="Demo on request" className="text-slate-900 py-1 bg-white">Demo on request</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-800 mb-1">Tags (comma-separated)</label>
-                <input
-                  type="text"
-                  value={formData.tags}
-                  onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-                  placeholder="React, Next.js, Node.js, Stripe"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-xs font-medium focus:ring-2 focus:ring-[#1769AA]/30 focus:border-[#1769AA] focus:outline-none transition-all shadow-sm"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-800 mb-1">Key Features (comma-separated)</label>
-                <input
-                  type="text"
-                  value={formData.features}
-                  onChange={(e) => setFormData({ ...formData, features: e.target.value })}
-                  placeholder="Real-time stock sync, Multi-currency checkout, Admin dashboard"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-xs font-medium focus:ring-2 focus:ring-[#1769AA]/30 focus:border-[#1769AA] focus:outline-none transition-all shadow-sm"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-800 mb-1">Client Problem / Challenge</label>
-                <textarea
-                  rows={2}
-                  value={formData.problem}
-                  onChange={(e) => setFormData({ ...formData, problem: e.target.value })}
-                  placeholder="What bottlenecks did the client face?"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-xs font-medium focus:ring-2 focus:ring-[#1769AA]/30 focus:border-[#1769AA] focus:outline-none transition-all shadow-sm"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-800 mb-1">Our Solution</label>
-                <textarea
-                  rows={2}
-                  value={formData.solution}
-                  onChange={(e) => setFormData({ ...formData, solution: e.target.value })}
-                  placeholder="How our engineering team solved it..."
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-xs font-medium focus:ring-2 focus:ring-[#1769AA]/30 focus:border-[#1769AA] focus:outline-none transition-all shadow-sm"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div>
-                <label className="block text-xs font-bold text-slate-800 mb-1">Duration</label>
-                <input
-                  type="text"
-                  value={formData.duration}
-                  onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-                  placeholder="4 Months"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-xs font-medium focus:ring-2 focus:ring-[#1769AA]/30 focus:border-[#1769AA] focus:outline-none transition-all shadow-sm"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-800 mb-1">Team Size</label>
-                <input
-                  type="text"
-                  value={formData.team}
-                  onChange={(e) => setFormData({ ...formData, team: e.target.value })}
-                  placeholder="4 Engineers"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-xs font-medium focus:ring-2 focus:ring-[#1769AA]/30 focus:border-[#1769AA] focus:outline-none transition-all shadow-sm"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-800 mb-1">Status</label>
-                <input
-                  type="text"
-                  value={formData.status}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                  placeholder="Completed / Active"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-xs font-medium focus:ring-2 focus:ring-[#1769AA]/30 focus:border-[#1769AA] focus:outline-none transition-all shadow-sm"
-                />
-              </div>
+            {/* Live Demo Link */}
+            <div>
+              <label className="block text-xs font-bold text-slate-800 mb-1 flex items-center gap-1.5">
+                <ExternalLink className="w-3.5 h-3.5 text-[#1769AA]" />
+                Live Demo Link (URL)
+              </label>
+              <input
+                type="url"
+                value={formData.demoUrl}
+                onChange={(e) => setFormData({ ...formData, demoUrl: e.target.value })}
+                placeholder="https://yourproject.com"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-xs font-medium focus:ring-2 focus:ring-[#1769AA]/30 focus:border-[#1769AA] focus:outline-none transition-all shadow-sm"
+              />
             </div>
 
             <DialogFooter className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
@@ -1211,6 +1045,18 @@ export default function AdminProjects() {
                 onClick={() => setIsModalOpen(false)}
                 className="rounded-xl text-xs"
               >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="bg-[#1769AA] hover:bg-[#0D4F85] text-white rounded-xl text-xs font-bold"
+              >
+                {editingProject ? "Update Project" : "Publish Project"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
                 Cancel
               </Button>
               <Button

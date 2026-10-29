@@ -1057,18 +1057,6 @@ export default function AdminProjects() {
           </form>
         </DialogContent>
       </Dialog>
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                className="bg-[#1769AA] hover:bg-[#0D4F85] text-white rounded-xl text-xs font-bold"
-              >
-                {editingProject ? "Update Project" : "Publish Project"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
 
       {/* VIEW MODAL */}
       <Dialog open={!!viewingProject} onOpenChange={() => setViewingProject(null)}>

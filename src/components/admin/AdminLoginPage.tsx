@@ -322,36 +322,6 @@ export default function AdminLoginPage({ onSuccess }: AdminLoginPageProps) {
                 )}
               </button>
             </form>
-
-            <div className="mt-6 pt-5 border-t border-slate-100 flex items-center justify-center gap-2 text-slate-400 text-xs">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              <span>Protected by Supabase Enterprise 256-bit SSL</span>
-            </div>
-
-            {/* Bottom Support Link */}
-            <div className="mt-4 text-center text-xs text-slate-500">
-              Need access?{" "}
-              <a
-                href="mailto:aayup.technologies.010@gmail.com"
-                className="text-[#1769AA] hover:text-[#0D4F85] font-semibold hover:underline"
-              >
-                Contact SuperAdmin
-              </a>
-            </div>
-
-            {/* Client Website link */}
-            <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-center gap-1.5 text-[11px] text-slate-400">
-              <span>AAYUP CRM Portal</span>
-              <span className="mx-1">•</span>
-              <a
-                href="http://localhost:3000"
-                target="_blank"
-                rel="noreferrer"
-                className="text-[#1769AA] hover:underline inline-flex items-center gap-0.5 font-medium"
-              >
-                Website <ExternalLink className="w-2.5 h-2.5" />
-              </a>
-            </div>
           </div>
         </div>
       </div>

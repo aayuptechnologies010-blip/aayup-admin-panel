@@ -60,6 +60,7 @@ export interface ProjectItem {
   id: string;
   title: string;
   category: string;
+  isProduct?: boolean;
   shortDescription: string;
   fullDescription: string;
   image: string;
@@ -258,12 +259,13 @@ export default function AdminProjects() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [projectToDelete, setProjectToDelete] = useState<ProjectItem | null>(null);
 
-  // Form State - only required fields: Title, Category, Image, Live Demo Link
+  // Form State - only required fields: Title, Category, Image, Live Demo Link, isProduct
   const [formData, setFormData] = useState({
     title: "",
     category: "Websites",
     image: "/project-web-development.webp",
     demoUrl: "",
+    isProduct: false,
   });
 
   // Dynamically derived project categories + default options
@@ -302,6 +304,7 @@ export default function AdminProjects() {
       category: "Websites",
       image: "/project-web-development.webp",
       demoUrl: "",
+      isProduct: false,
     });
     setIsModalOpen(true);
   };
@@ -313,6 +316,7 @@ export default function AdminProjects() {
       category: p.category,
       image: p.image,
       demoUrl: p.demoUrl || "",
+      isProduct: !!p.isProduct,
     });
     setIsModalOpen(true);
   };
@@ -335,6 +339,7 @@ export default function AdminProjects() {
               image: formData.image,
               images: [formData.image],
               demoUrl: formData.demoUrl || undefined,
+              isProduct: formData.isProduct,
             }
           : p
       );
@@ -361,6 +366,7 @@ export default function AdminProjects() {
         status: "Active",
         demoType: "Live Demo",
         demoUrl: formData.demoUrl || undefined,
+        isProduct: formData.isProduct,
       };
       saveProjectsToStorage([newProj, ...projects]);
       toast({ title: "Project Created", description: `"${formData.title}" added to showcase portfolio.` });
@@ -408,7 +414,11 @@ export default function AdminProjects() {
 
   // Filtering
   const filteredProjects = projects.filter((p) => {
-    if (selectedCategory !== "all" && p.category !== selectedCategory) return false;
+    if (selectedCategory === "products") {
+      if (!p.isProduct) return false;
+    } else if (selectedCategory !== "all" && p.category !== selectedCategory) {
+      return false;
+    }
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       return (
@@ -620,7 +630,7 @@ export default function AdminProjects() {
         <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between">
           {/* Category Filter Pills */}
           <div className="flex gap-2 overflow-x-auto pb-1 md:pb-0 no-scrollbar">
-            {["all", ...projectCategoryOptions].map((cat) => (
+            {["all", "products", ...projectCategoryOptions].map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
@@ -630,7 +640,7 @@ export default function AdminProjects() {
                     : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                 }`}
               >
-                {cat === "all" ? "All Categories" : cat}
+                {cat === "all" ? "All Categories" : cat === "products" ? "⭐ Our Products" : cat}
               </button>
             ))}
           </div>
@@ -719,12 +729,19 @@ export default function AdminProjects() {
                             />
                           </div>
                           <div className="min-w-0">
-                            <p
-                              className="text-xs font-bold text-slate-900 truncate hover:text-[#1769AA] cursor-pointer"
-                              onClick={() => setViewingProject(project)}
-                            >
-                              {project.title}
-                            </p>
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <p
+                                className="text-xs font-bold text-slate-900 truncate hover:text-[#1769AA] cursor-pointer"
+                                onClick={() => setViewingProject(project)}
+                              >
+                                {project.title}
+                              </p>
+                              {project.isProduct && (
+                                <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-700 font-extrabold text-[9px] border border-amber-300">
+                                  ⭐ Product
+                                </span>
+                              )}
+                            </div>
                             <p className="text-[11px] text-slate-500 truncate mt-0.5">
                               {project.shortDescription}
                             </p>
@@ -826,10 +843,15 @@ export default function AdminProjects() {
                       e.currentTarget.src = "/project-web-development.webp";
                     }}
                   />
-                  <div className="absolute top-3 left-3 flex gap-2">
+                  <div className="absolute top-3 left-3 flex gap-1.5 flex-wrap">
                     <span className="px-2.5 py-1 rounded-lg bg-black/60 backdrop-blur-md text-white font-bold text-[10px] tracking-wide uppercase">
                       {project.category}
                     </span>
+                    {project.isProduct && (
+                      <span className="px-2 py-0.5 rounded-lg bg-amber-500 text-slate-950 font-black text-[10px] shadow-sm flex items-center gap-1">
+                        ⭐ Product
+                      </span>
+                    )}
                   </div>
                   <div className="absolute top-3 right-3">
                     <span className="px-2.5 py-1 rounded-lg bg-emerald-500/90 text-white font-bold text-[10px] shadow-sm">
@@ -1035,6 +1057,26 @@ export default function AdminProjects() {
                 onChange={(e) => setFormData({ ...formData, demoUrl: e.target.value })}
                 placeholder="https://yourproject.com"
                 className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 text-xs font-medium focus:ring-2 focus:ring-[#1769AA]/30 focus:border-[#1769AA] focus:outline-none transition-all shadow-sm"
+              />
+            </div>
+
+            {/* Product Badge Checkbox Toggle */}
+            <div className="p-3.5 rounded-xl bg-amber-50/70 border border-amber-200/80 flex items-center justify-between gap-3">
+              <div>
+                <label htmlFor="isProductCheckbox" className="text-xs font-bold text-slate-900 flex items-center gap-1.5 cursor-pointer">
+                  <span>⭐ Mark as Our Product</span>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-200 text-amber-900 font-extrabold uppercase">Product Badge</span>
+                </label>
+                <p className="text-[11px] text-slate-600 mt-0.5">
+                  Is project ko "Product" badge milega aur website par "Our Products" category me alag se filter hoga.
+                </p>
+              </div>
+              <input
+                id="isProductCheckbox"
+                type="checkbox"
+                checked={formData.isProduct}
+                onChange={(e) => setFormData({ ...formData, isProduct: e.target.checked })}
+                className="w-5 h-5 rounded border-slate-300 text-amber-600 focus:ring-amber-500 cursor-pointer accent-amber-600 shrink-0"
               />
             </div>
 

@@ -97,7 +97,7 @@ export default function AdminLayout({
   const showContentSkeleton = !mounted || (authLoading && !user) || isLoading;
 
   return (
-    <div className="min-h-screen bg-[#F4F8FA] text-slate-800 flex overflow-hidden font-sans">
+    <div className="h-screen w-screen overflow-hidden bg-[#F4F8FA] text-slate-800 flex font-sans">
       {/* MOBILE BACKDROP */}
       {mobileOpen && (
         <div
@@ -106,14 +106,14 @@ export default function AdminLayout({
         />
       )}
 
-      {/* AAYUP WEBSITE-THEMED CRM SIDEBAR (Always Stable, never unmounts) */}
+      {/* AAYUP WEBSITE-THEMED CRM SIDEBAR (Fixed / Locked position) */}
       <aside
-        className={`fixed lg:static top-0 bottom-0 left-0 z-50 flex flex-col bg-[#0D4F85] text-white border-r border-[#1769AA]/40 transition-all duration-300 select-none shadow-2xl lg:shadow-none ${
+        className={`fixed lg:sticky top-0 h-screen z-50 flex flex-col bg-[#0D4F85] text-white border-r border-[#1769AA]/40 transition-all duration-300 select-none shadow-2xl lg:shadow-none shrink-0 overflow-hidden ${
           collapsed ? "w-20" : "w-64"
         } ${mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
       >
         {/* Sidebar Header / Brand */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-white/10 bg-white">
+        <div className="h-16 flex items-center justify-between px-4 border-b border-white/10 bg-white shrink-0">
           <div className="flex items-center gap-3 overflow-hidden">
             <img
               src="/footer.png"
@@ -203,7 +203,7 @@ export default function AdminLayout({
         </div>
 
         {/* User Card & Sign Out at Bottom */}
-        <div className="p-3 border-t border-white/10 bg-[#0A3D66]">
+        <div className="p-3 border-t border-white/10 bg-[#0A3D66] shrink-0">
           <div
             className={`flex items-center gap-3 p-2 rounded-xl bg-white/10 border border-white/15 ${
               collapsed ? "justify-center" : ""
@@ -238,8 +238,8 @@ export default function AdminLayout({
         </div>
       </aside>
 
-      {/* MAIN ADMIN WORKSPACE */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-y-auto h-screen bg-[#F4F8FA]">
+      {/* MAIN ADMIN WORKSPACE (Scrollable right pane) */}
+      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto bg-[#F4F8FA]">
         {/* Top Sticky CRM Bar */}
         <header className="h-16 shrink-0 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-sm">
           <div className="flex items-center gap-3">
